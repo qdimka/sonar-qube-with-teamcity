@@ -1,0 +1,28 @@
+version: '3'
+services:
+  teamcity:
+    image: jetbrains/teamcity-server
+    volumes:
+      - .\data:/data/teamcity_server/datadir
+      - .\logs:/opt/teamcity/logs
+    ports:
+      - "8111:8111"
+  tc-agent:
+    image: jetbrains/teamcity-agent
+    environment:
+      - SERVER_URL=teamcity:8111
+    ports:
+      - "9090:9090"
+    volumes:
+      - .\agent:/data/teamcity_agent/conf
+    links:
+      - teamcity
+      - sonar-qube
+    depends_on: 
+      - teamcity
+  sonar-qube:
+    image: sonarqube
+    ports:
+      - "9000:9000"
+    environment: 
+      - SONAR_RUNNER_OPTS=-Xmx1024m -XX:MaxPermSize=512m"
